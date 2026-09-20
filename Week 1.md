@@ -1,36 +1,34 @@
-![QTIA 第一周——原题](images/week-1-questions.png)
+![QTIA Week 1 — original questions](images/WEEK1.png)
 
-# 阶乘末尾的零
+# Trailing Zeros in a Factorial
 
-## 1. $100!$ 的十进制表示末尾有多少个零？
+## 1. How many trailing zeros are there in the decimal representation of $100!$?
 
-每个末尾的零对应一个因子 $10=2\times5$。在阶乘中，因子 $2$ 的数量至少与因子 $5$ 一样多，因此只需计算因子 $5$ 的数量。
+Each trailing zero corresponds to a factor of $10=2\times5$. In a factorial, there are at least as many factors of $2$ as factors of $5$, so we only need to count the factors of $5$.
 
-在 $1$ 到 $100$ 的整数中，每个 $5$ 的倍数至少贡献一个因子 $5$，每个 $25$ 的倍数还额外贡献一个因子 $5$。由于 $125>100$，不会再有额外贡献。因此末尾零的个数为
+Among the integers from $1$ to $100$, each multiple of $5$ contributes at least one factor of $5$, and each multiple of $25$ contributes an additional factor. Since $125>100$, there are no further contributions. Thus the number of trailing zeros is
 
 $$
 \left\lfloor\frac{100}{5}\right\rfloor
 +\left\lfloor\frac{100}{25}\right\rfloor
-=20+4=\boxed{24}
+=20+4=\boxed{24}.
 $$
-。
 
-## 2. 对任意正整数 $n$，求 $n!$ 末尾零的个数，并给出一个时间复杂度为 $O(\log n)$ 的算法。
+## 2. For any positive integer $n$, find the number of trailing zeros in $n!$ and give an $O(\log n)$ algorithm.
 
-同样的计数方法给出
+The same counting argument gives
 
 $$
-Z(n)=\sum_{k=1}^{\infty}\left\lfloor\frac{n}{5^k}\right\rfloor
+Z(n)=\sum_{k=1}^{\infty}\left\lfloor\frac{n}{5^k}\right\rfloor.
 $$
-。
 
-其中 $5^k$ 对应的项，计算的是能贡献第 $k$ 个因子 $5$ 的整数个数。所有满足 $5^k>n$ 的项都为零，因此只需相加有限项。
+The term for $5^k$ counts the integers that contribute a $k$th factor of $5$. All terms with $5^k>n$ are zero, so only finitely many terms need to be added.
 
-可通过不断除以 $5$ 来计算该和：
+We can compute this sum by repeatedly dividing by $5$:
 
 ```python
 def num_of_zero(n):
-    """返回整数 n（n >= 0）的阶乘 n! 末尾零的个数。"""
+    """Return the number of trailing zeros in n! for an integer n >= 0."""
     count = 0
     while n >= 5:
         n //= 5
@@ -38,170 +36,160 @@ def num_of_zero(n):
     return count
 ```
 
-每次相除后，`n` 就成为和式中的下一项：$\lfloor n_0/5\rfloor$、$\lfloor n_0/25\rfloor$，依此类推；其中 $n_0$ 为原始输入。对 $n_0\ge1$，循环执行 $\lfloor\log_5 n_0\rfloor$ 次。在通常的整数算术单位成本模型下，算法时间复杂度为 $O(\log n)$，额外空间复杂度为 $O(1)$。当 $n=0$ 时它也返回 $0$，这与 $0!=1$ 一致。
+After each division, `n` becomes the next term in the sum: $\lfloor n_0/5\rfloor$, $\lfloor n_0/25\rfloor$, and so on, where $n_0$ is the original input. For $n_0\ge1$, the loop runs $\lfloor\log_5 n_0\rfloor$ times. Under the usual unit-cost model for integer arithmetic, the algorithm takes $O(\log n)$ time and uses $O(1)$ auxiliary space. It also returns $0$ for $n=0$, consistent with $0!=1$.
 
-# 圆周上的蚂蚁
+# Ants on a Circle
 
-若干只蚂蚁等距分布在一个圆周上。每只蚂蚁独立地以 $1/2$ 的概率选择顺时针或逆时针移动，然后以每分钟一圈的恒定速度运动。任意两只蚂蚁相遇时，它们会立即同时反向，速度不变。将蚂蚁视为质点。
+Ants are equally spaced around a circle. Each ant independently chooses to move clockwise or counterclockwise with probability $1/2$, then moves at a constant speed of one revolution per minute. Whenever two ants meet, both immediately reverse direction without changing speed. Treat the ants as point particles.
 
-求恰好一分钟后下列各事件发生的概率，并说明理由。
+Find the probability of each event below after exactly one minute, and justify your answer.
 
-## 1. 有 9 只蚂蚁，它们所占据的位置集合与初始时相同。
+## 1. There are 9 ants, and the set of occupied positions is the same as initially.
 
-若忽略蚂蚁的身份，两只蚂蚁在相遇时反向，与它们彼此穿过无法区分：两种情况下，都会各有一只蚂蚁朝两个方向离开。
+If we ignore the ants' identities, two ants reversing direction at a collision is indistinguishable from two ants passing through each other: either way, one ant leaves in each direction.
 
-因此，可设想所有蚂蚁都始终沿初始方向运动而不转向。一分钟后，每只假想蚂蚁恰好绕圆周一圈，回到起点。因此，无论初始方向如何，所占位置集合都会恢复：
-
-$$
-\boxed{P=1}
-$$
-。
-
-## 2. 有 9 只蚂蚁，每只蚂蚁都回到自己的初始位置。
-
-这里蚂蚁的身份很重要。穿过模型仍能说明所占位置集合会恢复，但不能说明每个位置由哪只蚂蚁占据。
-
-先考虑一般情形：有 $n$ 只蚂蚁，其中 $k$ 只最初顺时针运动。令圆周长为 $1$，并取顺时针为正方向。每次相遇时，一只顺时针运动的蚂蚁和一只逆时针运动的蚂蚁交换方向，因此两个方向上运动的蚂蚁数量始终不变。它们的有符号速度总和恒为
+We may therefore imagine that all ants keep moving in their initial directions without turning. After one minute, each imagined ant completes a full revolution and returns to its starting position. Hence the set of occupied positions is always restored, regardless of the initial directions:
 
 $$
-k-(n-k)=2k-n
+\boxed{P=1}.
 $$
-。
 
-故在一分钟内，计入完整绕行次数后的有符号位移总和也为 $2k-n$。
+## 2. There are 9 ants, and every ant returns to its own starting position.
 
-实际的蚂蚁彼此不会穿过，因此它们的相对顺序保持不变。由于最终位置仍等距分布，当且仅当有符号位移总和模 $n$ 为 $0$ 时，每只蚂蚁会回到其初始位置。
+Here, identities matter. The pass-through argument still tells us that the occupied positions are restored, but it does not tell us which ant occupies each position.
 
-因此，
+First consider $n$ ants, of which $k$ initially move clockwise. Let the circumference be $1$ and take clockwise as positive. At every collision, one clockwise-moving ant and one counterclockwise-moving ant exchange directions, so the number moving in each direction remains unchanged. The sum of their signed velocities is therefore always
+
+$$
+k-(n-k)=2k-n.
+$$
+
+Over one minute, their **total signed displacement**, counting complete revolutions, is also $2k-n$.
+
+The actual ants never pass one another, so their order is preserved. Since the final positions are again equally spaced, the ants go back to their initial position iff the **total signed displacement** module $n$ is $0$.  
+
+Therefore,
 
 $$
 n\mid(2k-n)
 \quad\Longleftrightarrow\quad
-n\mid2k
+n\mid2k.
 $$
-。
 
-对 $n=9$，需满足 $9\mid k$。又因 $0\le k\le9$，只有 $k=0$ 和 $k=9$ 可行：所有蚂蚁最初必须朝同一方向运动。$2^9$ 种方向分配等可能，因此
+For $n=9$, this requires $9\mid k$. Since $0\le k\le9$, only $k=0$ and $k=9$ work: all ants must initially move in the same direction. The $2^9$ direction assignments are equally likely, so
 
 $$
-\boxed{P=\frac{2}{2^9}=\frac{1}{256}}
+\boxed{P=\frac{2}{2^9}=\frac{1}{256}}.
 $$
-。
 
-## 3. 有 10 只蚂蚁，每只蚂蚁都回到自己的初始位置。
+## 3. There are 10 ants, and every ant returns to its own starting position.
 
-根据第 2 题的条件，需有 $10\mid2k$，等价于 $5\mid k$。因此 $k=0,5,$ 或 $10$。
+Using the condition from Question 2, we need $10\mid2k$, or equivalently $5\mid k$. Hence $k=0,5,$ or $10$.
 
-恰有 $k$ 只蚂蚁顺时针运动的分配方式有 $\binom{10}{k}$ 种，故
+There are $\binom{10}{k}$ assignments with exactly $k$ clockwise-moving ants, so
 
 $$
 \boxed{
 P=\frac{\binom{10}{0}+\binom{10}{5}+\binom{10}{10}}{2^{10}}
 =\frac{1+252+1}{1024}
 =\frac{127}{512}
-}
+}.
 $$
-。
 
-# 金币称重
+# Weighing Gold Coins
 
-有三袋数量充足的金币。每袋内金币的单枚质量相同，且均为正整数克。你有一台精确且没有称量上限的电子秤。每次称量时，你可从每袋任取有限枚金币（可取零枚），称出其总质量；后续称量中每袋取币数量可依据此前的称量结果决定。
+There are three bags, each containing a sufficient supply of gold coins. All coins within a bag have the same weight, measured in a positive integer number of grams. You have an exact electronic scale with no capacity limit. In each weighing, you may take any finite number of coins, including zero, from each bag and measure their combined weight. You may use earlier results to decide how many coins to take in a later weighing.
 
-以下问题彼此独立。对每一题，求最少称量次数，并说明方法及其最优性。以下质量单位均为克。
+The following questions are independent. For each, find the minimum number of weighings and explain both the method and why it is optimal. All weights below are expressed in grams.
 
-## 1. 有一袋金币每枚质量为 9 克或 11 克，另外两袋每枚均为 10 克。找出异常袋，并判断其金币偏轻还是偏重。
+## 1. Coins in one bag weigh either 9 or 11 grams each; coins in the other two bags weigh 10 grams each. Identify the unusual bag and determine whether its coins are lighter or heavier.
 
-**最少一次称量。**
+**Minimum: one weighing.**
 
-分别从第一、第二、第三袋中取 $1$、$2$、$3$ 枚。若六枚金币均为每枚 $10$ 克，总质量应为 $60$ 克。异常袋会使总质量产生 $\pm1$、$\pm2$ 或 $\pm3$ 克的变化，取决于它是哪一袋。
+Take $1$, $2$, and $3$ coins from the first, second, and third bags, respectively. If all six coins weighed $10$ grams each, the total would be $60$. The unusual bag changes this total by $\pm1$, $\pm2$, or $\pm3$, depending on which bag it is.
 
-| 异常袋 | 偏轻时的总质量（每枚 9 克） | 偏重时的总质量（每枚 11 克） |
+| Unusual bag | Total if lighter (9 g per coin) | Total if heavier (11 g per coin) |
 | --- | --- | --- |
-| 第一袋 | 59 | 61 |
-| 第二袋 | 58 | 62 |
-| 第三袋 | 57 | 63 |
+| First | 59 | 61 |
+| Second | 58 | 62 |
+| Third | 57 | 63 |
 
-六种总质量均不相同，因此一次称量即可确定异常袋及其偏轻或偏重。零次称量无法区分这些情况，所以一次称量最优。
+All six totals are distinct, so one weighing identifies both the bag and whether its coins are lighter or heavier. With no weighing, these possibilities cannot be distinguished; therefore, one weighing is optimal.
 
-## 2. 有一袋金币的单枚质量比另外两袋轻 1 克或重 1 克，正常质量未知。找出异常袋，并判断其金币偏轻还是偏重。
+## 2. Coins in one bag are 1 gram lighter or heavier than those in the other two bags. The normal weight is unknown. Identify the unusual bag and determine whether its coins are lighter or heavier.
 
-**最少一次称量。**
+**Minimum: one weighing.**
 
-分别从第一、第二、第三袋中取 $1$、$2$、$4$ 枚。设正常单枚质量为 $m$ 克，则总质量为
+Take $1$, $2$, and $4$ coins from the first, second, and third bags, respectively. Let the normal weight be $m$ grams per coin. The total weight is
 
 $$
 W=\begin{cases}
-7m\pm1, & \text{第一袋为异常袋时},\\
-7m\pm2, & \text{第二袋为异常袋时},\\
-7m\pm4, & \text{第三袋为异常袋时}.
+7m\pm1, & \text{if the first bag is unusual},\\
+7m\pm2, & \text{if the second bag is unusual},\\
+7m\pm4, & \text{if the third bag is unusual}.
 \end{cases}
 $$
 
-将 $W$ 对 $7$ 取模即可消去未知的正常质量 $m$。可能的余数为：
+Reducing $W$ modulo $7$ eliminates the unknown normal weight $m$. The possible remainders are:
 
-| 异常袋 | 偏轻时 $W\bmod7$ | 偏重时 $W\bmod7$ |
+| Unusual bag | $W\bmod7$ if lighter | $W\bmod7$ if heavier |
 | --- | --- | --- |
-| 第一袋 | 6 | 1 |
-| 第二袋 | 5 | 2 |
-| 第三袋 | 3 | 4 |
+| First | 6 | 1 |
+| Second | 5 | 2 |
+| Third | 3 | 4 |
 
-六种余数均不相同，因此可确定异常袋及其偏轻或偏重。零次称量无法区分这些情况，所以一次称量最优。
+All six remainders are distinct, so they identify both the unusual bag and whether its coins are lighter or heavier. Zero weighings cannot distinguish the possibilities, so one weighing is optimal.
 
-## 3. 确定每袋金币的单枚质量。
+## 3. Determine the weight of a coin from each bag.
 
-**最少两次称量。**
+**Minimum: two weighings.**
 
-设第一、第二、第三袋的单枚质量分别为正整数 $a,b,c$。
+Let $a,b,c$ be the positive integer weights of a coin from the first, second, and third bags, respectively.
 
-**第一次称量。** 每袋各取一枚，记结果为
-
-$$
-S=a+b+c
-$$
-。
-
-**第二次称量。** 观察到 $S$ 后，从第一袋取一枚、第二袋取 $S$ 枚、第三袋不取。测得总质量为
+**First weighing.** Take one coin from each bag and record
 
 $$
-W=a+Sb
+S=a+b+c.
 $$
-。
 
-由于 $b,c>0$，有 $0<a<S$。因此，将 $W$ 除以 $S$，商为 $b$，余数为 $a$。故
+**Second weighing.** After observing $S$, take one coin from the first bag, $S$ coins from the second bag, and none from the third. The measured total is
+
+$$
+W=a+Sb.
+$$
+
+Since $b,c>0$, we have $0<a<S$. Dividing $W$ by $S$ therefore gives quotient $b$ and remainder $a$. Hence
 
 $$
 \boxed{
 a=W\bmod S,\qquad
 b=\left\lfloor\frac{W}{S}\right\rfloor,\qquad
 c=S-a-b
-}
+}.
 $$
-。
 
-由此，两次称量便能确定全部三个质量。该构造的关键在于：第二次取样数量可在得知第一次结果后再选择。
+Thus two weighings determine all three weights. The ability to choose the second sample size after seeing the first result is essential to this construction.
 
-**为什么一次称量不够。** 任何一次称量的策略都必须预先选定固定的非负整数 $p,q,r$，且只能观察到
+**Why one weighing cannot suffice.** Any one-weighing strategy must choose fixed nonnegative integers $p,q,r$ and observe only
 
 $$
-W=pa+qb+rc
+W=pa+qb+rc.
 $$
-。
 
-若 $p,q,r$ 中任何一个为零，则测量结果不包含对应袋中金币质量的信息。因此，成功的策略必须满足 $p,q,r>0$。
+If any of $p,q,r$ is zero, the measurement contains no information about the corresponding bag's coin weight. Thus a successful strategy would require $p,q,r>0$.
 
-然而，对任意这样的选择，下面两个不同的正整数三元组
+For any such choice, however, the two distinct positive integer triples
 
 $$
 (a,b,c)=(q+1,1,1)
-\quad\text{和}\quad
+\quad\text{and}\quad
 (a,b,c)=(1,p+1,1)
 $$
 
-都给出相同的结果
+both give
 
 $$
-W=pq+p+q+r
+W=pq+p+q+r.
 $$
-。
 
-因此，一次称量不可能总能区分所有可能的质量组合。既然两次称量足够，最少次数恰为两次。
+One weighing therefore cannot always distinguish the possible weights. Since two weighings suffice, the minimum is exactly two.
