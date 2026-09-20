@@ -1,4 +1,4 @@
-![QTIA Week 1 — original questions](images/week-1-questions.png)
+![QTIA Week 1 — original questions](images/WEEK1.png)
 
 # Trailing Zeros in a Factorial
 
